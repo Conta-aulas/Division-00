@@ -2,414 +2,1008 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Clube de Robótica — Divisão 00</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Divisão 00 | Clube de Robótica e Eletrônica</title>
+<meta name="description" content="Site oficial do clube de robótica e eletrônica Divisão 00 - regras, projetos, equipes e área de membros.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-  :root{
-    --bg:#0a0e14;
-    --bg-alt:#0f1420;
-    --panel:#131a26;
-    --border:#223247;
-    --green:#39d97a;
-    --green-dim:#1f6b42;
-    --orange:#ff8c42;
-    --text:#e8f0f5;
-    --muted:#7d92a6;
-    --danger:#ff5f5f;
-    --font-display:'JetBrains Mono',monospace;
-    --font-body:'Inter',sans-serif;
-  }
-  body.light{
-    --bg:#f2f6f9;
-    --bg-alt:#e7edf2;
-    --panel:#ffffff;
-    --border:#d7e0e8;
-    --text:#141d27;
-    --muted:#55677a;
-  }
-  *{box-sizing:border-box}
-  body{
-    margin:0;
-    background:var(--bg);
-    color:var(--text);
-    font-family:var(--font-body);
-    transition:background .3s ease,color .3s ease;
-  }
-  a{color:inherit}
+/* =========================================================
+   DIVISÃO 00 — Design tokens
+   ========================================================= */
+:root{
+  --bg: #05080c;
+  --bg-alt: #080d13;
+  --panel: #0d151f;
+  --panel-2: #101a26;
+  --border: rgba(57,255,136,0.22);
+  --border-blue: rgba(47,184,255,0.3);
+  --blue: #2fb8ff;
+  --blue-dim: #1a6fa8;
+  --green: #39ff88;
+  --green-dim: #1f9e56;
+  --white: #eaf4ff;
+  --muted: #7d93a8;
+  --amber: #ffc857;
+  --red: #ff6b6b;
+  --red-dim: rgba(255,107,107,.5);
+  --font-display: 'Orbitron', sans-serif;
+  --font-sub: 'Rajdhani', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --font-mono: 'Share Tech Mono', monospace;
+  --radius: 4px;
+  --transition: .3s cubic-bezier(.4,0,.2,1);
+}
 
-  /* ---------- HERO ---------- */
-  .hero{
-    position:relative;
-    overflow:hidden;
-    padding:70px 20px 50px;
-    text-align:center;
-    background:linear-gradient(180deg,var(--bg-alt),var(--bg));
-    border-bottom:1px solid var(--border);
-  }
-  .hero svg.circuit{
-    position:absolute;
-    inset:0;
-    width:100%;
-    height:100%;
-    opacity:.25;
-    pointer-events:none;
-  }
-  .hero-content{position:relative;z-index:1}
-  .eyebrow{
-    font-family:var(--font-display);
-    letter-spacing:.15em;
-    color:var(--green);
-    font-size:.8em;
-    text-transform:uppercase;
-  }
-  h1{
-    font-family:var(--font-display);
-    font-size:2.6em;
-    margin:.3em 0 .1em;
-    font-weight:800;
-    letter-spacing:-.01em;
-  }
-  .hero p.sub{color:var(--muted);margin:0 0 20px;font-size:1.05em}
-  .status-line{
-    display:inline-block;
-    font-family:var(--font-display);
-    font-size:.85em;
-    color:var(--green);
-    background:rgba(57,217,122,.08);
-    border:1px solid var(--green-dim);
-    padding:6px 14px;
-    border-radius:6px;
-    margin-bottom:22px;
-  }
-  .status-line .cursor{animation:blink 1s step-end infinite}
-  @keyframes blink{50%{opacity:0}}
-  @media (prefers-reduced-motion:reduce){.status-line .cursor{animation:none}}
+body.theme-light{
+  --bg: #eef3f7;
+  --bg-alt: #e4ebf1;
+  --panel: #ffffff;
+  --panel-2: #f4f8fb;
+  --border: rgba(31,158,86,0.3);
+  --border-blue: rgba(26,111,168,0.35);
+  --white: #0b1620;
+  --muted: #48607a;
+}
 
-  button.theme-btn{
-    font-family:var(--font-display);
-    background:transparent;
-    border:1px solid var(--border);
-    color:var(--text);
-    padding:10px 16px;
-    border-radius:8px;
-    cursor:pointer;
-    font-size:.85em;
-  }
-  button.theme-btn:hover{border-color:var(--green)}
+*,*::before,*::after{ box-sizing: border-box; }
+html{ scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce){
+  html{ scroll-behavior: auto; }
+  *,*::before,*::after{ animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; scroll-behavior: auto !important; }
+}
 
-  /* ---------- NAV ---------- */
-  nav{
-    display:flex;
-    justify-content:center;
-    gap:8px;
-    flex-wrap:wrap;
-    padding:14px;
-    background:var(--panel);
-    border-bottom:1px solid var(--border);
-    position:sticky;
-    top:0;
-    z-index:10;
-  }
-  nav a{
-    font-family:var(--font-display);
-    font-size:.82em;
-    text-decoration:none;
-    padding:9px 16px;
-    border:1px solid var(--border);
-    border-radius:20px;
-    color:var(--text);
-    transition:.2s;
-  }
-  nav a:hover{border-color:var(--green);color:var(--green)}
+body{
+  margin:0;
+  background: var(--bg);
+  color: var(--white);
+  font-family: var(--font-body);
+  overflow-x: hidden;
+  transition: background var(--transition), color var(--transition);
+}
 
-  section{max-width:1000px;margin:auto;padding:50px 20px}
-  h2{
-    font-family:var(--font-display);
-    font-size:1.5em;
-    margin-bottom:6px;
-  }
-  h2 .tag{color:var(--orange)}
-  .lead{color:var(--muted);margin:0 0 26px;font-size:.95em}
+a{ color: inherit; text-decoration: none; }
+ul{ margin:0; padding:0; list-style: none; }
+button{ font-family: inherit; cursor: pointer; }
 
-  /* ---------- CARDS ---------- */
-  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
-  .card{
-    background:var(--panel);
-    border:1px solid var(--border);
-    border-radius:14px;
-    padding:20px;
-    transition:.25s;
-  }
-  .card:hover{transform:translateY(-4px);border-color:var(--green);box-shadow:0 8px 24px -12px var(--green-dim)}
-  .card h3{margin-top:0;font-family:var(--font-display);font-size:1.05em}
-  .card ul{margin:0;padding-left:1.1em;color:var(--muted)}
+::selection{ background: var(--green); color: #05080c; }
 
-  /* ---------- DETAILS ---------- */
-  details{
-    background:var(--panel);
-    border:1px solid var(--border);
-    border-radius:10px;
-    padding:14px 16px;
-    margin:10px 0;
-  }
-  details summary{cursor:pointer;font-family:var(--font-display);font-size:.92em}
-  details[open] summary{color:var(--green)}
-  details div.body-text{padding-top:10px;color:var(--muted);font-size:.92em}
+:focus-visible{
+  outline: 2px solid var(--green);
+  outline-offset: 3px;
+}
 
-  /* ---------- FORMS ---------- */
-  .panel{
-    background:var(--panel);
-    border:1px solid var(--border);
-    border-radius:14px;
-    padding:26px;
-    max-width:480px;
-  }
-  .field{margin-bottom:16px}
-  .field label{
-    display:block;
-    font-family:var(--font-display);
-    font-size:.78em;
-    color:var(--muted);
-    margin-bottom:6px;
-    text-transform:uppercase;
-    letter-spacing:.04em;
-  }
-  .field input,.field select{
-    width:100%;
-    padding:10px 12px;
-    border-radius:8px;
-    border:1px solid var(--border);
-    background:var(--bg-alt);
-    color:var(--text);
-    font-family:var(--font-body);
-    font-size:.95em;
-  }
-  .field input:focus,.field select:focus{outline:2px solid var(--green);outline-offset:1px}
-  .btn-primary{
-    font-family:var(--font-display);
-    background:var(--green);
-    color:#05130a;
-    border:none;
-    padding:11px 20px;
-    border-radius:8px;
-    cursor:pointer;
-    font-weight:600;
-    font-size:.88em;
-  }
-  .btn-primary:hover{background:#4fe58d}
-  .btn-secondary{
-    font-family:var(--font-display);
-    background:transparent;
-    border:1px solid var(--border);
-    color:var(--text);
-    padding:11px 20px;
-    border-radius:8px;
-    cursor:pointer;
-    font-size:.88em;
-  }
-  .btn-secondary:hover{border-color:var(--orange);color:var(--orange)}
-  .msg{font-size:.85em;margin-top:10px;font-family:var(--font-body)}
-  .msg.ok{color:var(--green)}
-  .msg.err{color:var(--danger)}
-  .note{font-size:.78em;color:var(--muted);margin-top:16px}
+/* ---------- Circuit background ---------- */
+#circuit-bg{
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  opacity: .55;
+}
 
-  .welcome-panel{
-    background:var(--panel);
-    border:1px solid var(--green-dim);
-    border-radius:14px;
-    padding:22px 26px;
-    max-width:480px;
-    margin-top:18px;
-  }
-  .badge{
-    display:inline-block;
-    font-family:var(--font-display);
-    font-size:.72em;
-    background:rgba(255,140,66,.12);
-    color:var(--orange);
-    border:1px solid var(--orange);
-    padding:2px 10px;
-    border-radius:20px;
-    margin-left:8px;
-  }
+/* ---------- Utility ---------- */
+.eyebrow{
+  font-family: var(--font-mono);
+  font-size: .72rem;
+  letter-spacing: .25em;
+  color: var(--green);
+  text-transform: uppercase;
+  margin: 0 0 .6rem;
+}
+.accent-green{ color: var(--green); }
+.accent-blue{ color: var(--blue); }
 
-  /* ---------- MEMBER TABLE ---------- */
-  table{width:100%;border-collapse:collapse;background:var(--panel);border:1px solid var(--border);border-radius:14px;overflow:hidden}
-  th,td{padding:12px 14px;text-align:left;font-size:.9em;border-bottom:1px solid var(--border)}
-  th{font-family:var(--font-display);font-size:.75em;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
-  tr:last-child td{border-bottom:none}
-  .empty-state{color:var(--muted);font-size:.9em;padding:20px;text-align:center}
+/* ---------- Header ---------- */
+.site-header{
+  position: fixed;
+  top:0; left:0; right:0;
+  z-index: 100;
+  background: rgba(5,8,12,.72);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border);
+}
+body.theme-light .site-header{ background: rgba(238,243,247,.85); }
 
-  footer{text-align:center;padding:34px 20px;color:var(--muted);font-family:var(--font-display);font-size:.78em;border-top:1px solid var(--border)}
+.header-inner{
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: .9rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.logo-lockup{
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  color: var(--green);
+}
+.logo-mark{ color: var(--green); flex-shrink: 0; filter: drop-shadow(0 0 6px rgba(57,255,136,.5)); }
+.logo-text{
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1rem;
+  letter-spacing: .12em;
+  color: var(--white);
+}
+.logo-text em{ font-style: normal; color: var(--green); }
+
+.main-nav{ display: flex; gap: 1.6rem; flex-wrap: wrap; }
+.nav-link{
+  font-family: var(--font-sub);
+  font-weight: 600;
+  font-size: .92rem;
+  letter-spacing: .04em;
+  color: var(--muted);
+  position: relative;
+  padding: .3rem 0;
+  transition: color var(--transition);
+}
+.nav-link::after{
+  content:"";
+  position: absolute;
+  left:0; bottom:-2px;
+  width: 0%; height: 2px;
+  background: var(--green);
+  box-shadow: 0 0 8px var(--green);
+  transition: width var(--transition);
+}
+.nav-link:hover, .nav-link.active{ color: var(--white); }
+.nav-link:hover::after, .nav-link.active::after{ width: 100%; }
+
+.header-actions{ display: flex; align-items: center; gap: .5rem; }
+.icon-btn{
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--white);
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  transition: border-color var(--transition), box-shadow var(--transition), transform var(--transition);
+}
+.icon-btn:hover{ border-color: var(--green); box-shadow: 0 0 12px rgba(57,255,136,.35); transform: translateY(-1px); }
+
+.hamburger{
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 38px; height: 38px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+}
+.hamburger span{
+  width: 16px; height: 2px; margin: 0 auto;
+  background: var(--white);
+  transition: transform var(--transition), opacity var(--transition);
+}
+.hamburger.open span:nth-child(1){ transform: translateY(7px) rotate(45deg); }
+.hamburger.open span:nth-child(2){ opacity: 0; }
+.hamburger.open span:nth-child(3){ transform: translateY(-7px) rotate(-45deg); }
+
+/* ---------- Hero ---------- */
+.hero{
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 7rem 1.5rem 3rem;
+  position: relative;
+}
+.hero-content{ max-width: 720px; }
+.hero-logo{
+  color: var(--green);
+  filter: drop-shadow(0 0 18px rgba(57,255,136,.45));
+  margin-bottom: 1.2rem;
+  animation: float 5s ease-in-out infinite;
+}
+@keyframes float{
+  0%,100%{ transform: translateY(0); }
+  50%{ transform: translateY(-10px); }
+}
+.hero-title{
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(2.6rem, 8vw, 5rem);
+  letter-spacing: .06em;
+  margin: 0 0 1rem;
+  text-shadow: 0 0 24px rgba(47,184,255,.35);
+}
+.hero-tagline{
+  font-family: var(--font-sub);
+  font-size: clamp(1.1rem, 2.4vw, 1.5rem);
+  color: var(--muted);
+  margin: 0 0 2.2rem;
+  font-weight: 500;
+}
+
+.btn{
+  display: inline-block;
+  font-family: var(--font-sub);
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: .05em;
+  padding: .9rem 2.2rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--green);
+  transition: all var(--transition);
+  position: relative;
+  background:transparent;
+}
+.btn-primary{
+  color: #05080c;
+  background: var(--green);
+  box-shadow: 0 0 20px rgba(57,255,136,.4);
+}
+.btn-primary:hover{
+  background: transparent;
+  color: var(--green);
+  box-shadow: 0 0 28px rgba(57,255,136,.6);
+  transform: translateY(-2px);
+}
+.btn-secondary{
+  color: var(--white);
+  border-color: var(--border);
+}
+.btn-secondary:hover{
+  border-color: var(--blue);
+  color: var(--blue);
+  box-shadow: 0 0 16px rgba(47,184,255,.3);
+  transform: translateY(-2px);
+}
+
+.hero-stats{
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 3.5rem;
+}
+.stat-chip{
+  border: 1px solid var(--border-blue);
+  background: rgba(13,21,31,.6);
+  padding: 1rem 1.6rem;
+  border-radius: var(--radius);
+  min-width: 150px;
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+.stat-chip:hover{ transform: translateY(-3px); box-shadow: 0 6px 24px rgba(47,184,255,.2); }
+.stat-number{
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 2.1rem;
+  color: var(--blue);
+  text-shadow: 0 0 14px rgba(47,184,255,.5);
+}
+.stat-label{
+  font-family: var(--font-sub);
+  font-size: .8rem;
+  letter-spacing: .05em;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+.scroll-hint{
+  position: absolute;
+  bottom: 1.6rem;
+  font-family: var(--font-mono);
+  font-size: .75rem;
+  color: var(--muted);
+  animation: pulse-op 2s ease-in-out infinite;
+}
+@keyframes pulse-op{ 0%,100%{opacity:.4;} 50%{opacity:1;} }
+
+/* ---------- Sections ---------- */
+.section{
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 6rem 1.5rem;
+}
+.section-alt{
+  max-width: none;
+  background: linear-gradient(180deg, transparent, rgba(47,184,255,.04), transparent);
+}
+.section-alt > *{ max-width: 1200px; margin-left: auto; margin-right: auto; }
+
+.section-head{ text-align: center; max-width: 640px; margin: 0 auto 3rem; }
+.section-title{
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  margin: 0 0 .8rem;
+  letter-spacing: .04em;
+}
+.section-sub{ color: var(--muted); font-size: 1.02rem; line-height: 1.6; margin: 0; }
+
+/* ---------- Reveal on scroll ---------- */
+[data-reveal]{
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity .7s ease, transform .7s ease;
+}
+[data-reveal].is-visible{ opacity: 1; transform: translateY(0); }
+
+/* ---------- Accordion (Regras) ---------- */
+.accordion{ display: flex; flex-direction: column; gap: 1rem; max-width: 820px; margin: 0 auto; }
+.acc-item{
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--panel);
+  overflow: hidden;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+.acc-item:hover{ border-color: var(--green); }
+.acc-trigger{
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: transparent;
+  border: none;
+  color: var(--white);
+  padding: 1.1rem 1.4rem;
+  text-align: left;
+}
+.acc-icon{
+  font-family: var(--font-mono);
+  color: var(--green);
+  font-size: .95rem;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  width: 34px; height: 34px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.acc-title{
+  font-family: var(--font-sub);
+  font-weight: 700;
+  font-size: 1.1rem;
+  flex: 1;
+}
+.acc-plus{
+  font-size: 1.4rem;
+  color: var(--blue);
+  transition: transform var(--transition);
+  font-weight: 300;
+}
+.acc-trigger[aria-expanded="true"] .acc-plus{ transform: rotate(45deg); }
+
+.acc-panel{
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height var(--transition);
+}
+.acc-panel ul{ padding: 0 1.4rem 1.4rem 3.9rem; }
+.acc-panel li{
+  position: relative;
+  padding: .35rem 0;
+  color: var(--muted);
+  line-height: 1.55;
+}
+.acc-panel li::before{
+  content:"▸";
+  position: absolute;
+  left: -1.1rem;
+  color: var(--green);
+}
+
+/* ---------- Controls bar (search + filters) ---------- */
+.controls-bar{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.2rem;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2.5rem;
+}
+.controls-bar-center{ justify-content: center; }
+
+.search-box{
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  border: 1px solid var(--border-blue);
+  background: var(--panel);
+  border-radius: var(--radius);
+  padding: .7rem 1rem;
+  flex: 1 1 280px;
+  max-width: 420px;
+  color: var(--blue);
+  transition: box-shadow var(--transition), border-color var(--transition);
+}
+.search-box:focus-within{ border-color: var(--blue); box-shadow: 0 0 14px rgba(47,184,255,.3); }
+.search-box input{
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--white);
+  font-family: var(--font-body);
+  font-size: .95rem;
+  width: 100%;
+}
+.search-box input::placeholder{ color: var(--muted); }
+
+.filter-group{ display: flex; gap: .6rem; flex-wrap: wrap; }
+.filter-btn{
+  font-family: var(--font-sub);
+  font-weight: 600;
+  font-size: .85rem;
+  letter-spacing: .03em;
+  color: var(--muted);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: .5rem 1.1rem;
+  transition: all var(--transition);
+}
+.filter-btn:hover{ color: var(--white); border-color: var(--green); }
+.filter-btn.active{
+  color: #05080c;
+  background: var(--green);
+  border-color: var(--green);
+  box-shadow: 0 0 14px rgba(57,255,136,.4);
+}
+
+/* ---------- Project cards ---------- */
+.project-grid{
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.6rem;
+}
+.empty-state{ text-align: center; color: var(--muted); padding: 2rem 0; font-family: var(--font-sub); }
+
+.card{
+  position: relative;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+}
+.card::before, .card::after{
+  content:"";
+  position: absolute;
+  width: 14px; height: 14px;
+  border-color: var(--green);
+  opacity: .8;
+  transition: opacity var(--transition);
+}
+.card::before{ top:-1px; left:-1px; border-top: 2px solid; border-left: 2px solid; }
+.card::after{ bottom:-1px; right:-1px; border-bottom: 2px solid; border-right: 2px solid; }
+.card:hover{
+  transform: translateY(-6px);
+  border-color: var(--border-blue);
+  box-shadow: 0 10px 30px rgba(0,0,0,.35), 0 0 18px rgba(47,184,255,.15);
+}
+
+.card-media{
+  height: 150px;
+  border-radius: 3px;
+  margin-bottom: 1.1rem;
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: var(--bg-alt);
+}
+.card-media svg{ width: 100%; height: 100%; }
+
+.status-badge{
+  font-family: var(--font-mono);
+  font-size: .7rem;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  padding: .25rem .6rem;
+  border-radius: 999px;
+  display: inline-block;
+  margin-bottom: .7rem;
+}
+.status-complexo{ color: var(--red); border: 1px solid var(--red-dim); background: rgba(255,107,107,.1); }
+.status-intermediario{ color: var(--amber); border: 1px solid rgba(255,200,87,.5); background: rgba(255,200,87,.08); }
+.status-facil{ color: var(--green); border: 1px solid var(--green-dim); background: rgba(57,255,136,.1); }
+
+.card-title{
+  font-family: var(--font-sub);
+  font-weight: 700;
+  font-size: 1.2rem;
+  margin: 0 0 .5rem;
+}
+.card-desc{ color: var(--muted); font-size: .92rem; line-height: 1.55; margin: 0 0 1rem; }
+.card-members{
+  display: flex;
+  flex-wrap: wrap;
+  gap: .4rem;
+  font-family: var(--font-mono);
+  font-size: .75rem;
+}
+.member-tag{
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: .2rem .6rem;
+  color: var(--muted);
+}
+
+/* ---------- Team cards ---------- */
+.member-grid{
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 1.5rem;
+}
+.team-card{
+  text-align: center;
+  padding: 2rem 1.2rem 1.6rem;
+}
+.team-avatar{
+  width: 74px; height: 74px;
+  margin: 0 auto 1rem;
+  border-radius: 50%;
+  border: 2px solid var(--blue);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.15rem;
+  color: var(--blue);
+  background: var(--bg-alt);
+  box-shadow: 0 0 16px rgba(47,184,255,.25);
+}
+.team-name{ font-family: var(--font-sub); font-weight: 700; font-size: 1.08rem; margin:0; }
+
+/* ---------- Auth (login / cadastro) ---------- */
+.auth-wrap{ display: flex; justify-content: center; }
+.auth-card{ max-width: 420px; width: 100%; text-align: left; }
+.field{ margin-bottom: 1.2rem; }
+.field label{
+  display: block;
+  font-family: var(--font-mono);
+  font-size: .7rem;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--muted);
+  margin-bottom: .45rem;
+}
+.field input, .field select{
+  width: 100%;
+  padding: .75rem .9rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--border-blue);
+  background: var(--bg-alt);
+  color: var(--white);
+  font-family: var(--font-body);
+  font-size: .95rem;
+}
+.field input:focus, .field select:focus{
+  outline: 2px solid var(--green);
+  outline-offset: 2px;
+}
+.msg{ font-family: var(--font-body); font-size: .85rem; margin-top: .9rem; min-height: 1.2em; }
+.msg.ok{ color: var(--green); }
+.msg.err{ color: var(--red); }
+.note-text{ font-size: .75rem; color: var(--muted); margin-top: 1.2rem; line-height: 1.6; font-family: var(--font-body); }
+
+.welcome-card{ max-width: 420px; margin: 1.6rem auto 0; text-align: center; }
+.welcome-card h3{ font-family: var(--font-sub); font-weight: 700; font-size: 1.3rem; margin: 0 0 .3rem; }
+.badge-role{
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: .68rem;
+  background: rgba(255,200,87,.1);
+  color: var(--amber);
+  border: 1px solid rgba(255,200,87,.5);
+  padding: .22rem .7rem;
+  border-radius: 999px;
+  margin-left: .5rem;
+  vertical-align: middle;
+}
+
+.members-table-wrap{ max-width: 720px; margin: 0 auto; }
+table.members-table{
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--panel);
+}
+table.members-table th, table.members-table td{
+  padding: .85rem 1.1rem;
+  text-align: left;
+  font-size: .9rem;
+  border-bottom: 1px solid var(--border);
+}
+table.members-table th{
+  font-family: var(--font-mono);
+  font-size: .7rem;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: var(--muted);
+}
+table.members-table tr:last-child td{ border-bottom: none; }
+
+/* ---------- Footer ---------- */
+.site-footer{
+  border-top: 1px solid var(--border);
+  padding: 2.4rem 1.5rem;
+  background: var(--bg-alt);
+}
+.footer-inner{
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.2rem;
+  align-items: center;
+  justify-content: space-between;
+}
+.footer-brand{
+  display: flex; align-items: center; gap: .6rem;
+  font-family: var(--font-display);
+  font-weight: 800;
+  color: var(--green);
+  letter-spacing: .08em;
+  font-size: .95rem;
+}
+.footer-copy{ color: var(--muted); font-size: .85rem; text-align: center; flex: 1; min-width: 240px; }
+.footer-social{ display: flex; gap: .7rem; }
+.social-btn{
+  width: 36px; height: 36px;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--muted);
+  transition: all var(--transition);
+}
+.social-btn:hover{ color: var(--green); border-color: var(--green); box-shadow: 0 0 12px rgba(57,255,136,.35); transform: translateY(-2px); }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 860px){
+  .main-nav{
+    position: fixed;
+    top: 64px; right: 0;
+    flex-direction: column;
+    background: rgba(5,8,12,.97);
+    border-left: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding: 1.5rem 2rem;
+    gap: 1.2rem;
+    transform: translateX(100%);
+    transition: transform var(--transition);
+  }
+  body.theme-light .main-nav{ background: rgba(238,243,247,.98); }
+  .main-nav.open{ transform: translateX(0); }
+  .hamburger{ display: flex; }
+  .controls-bar{ flex-direction: column; align-items: stretch; }
+  .search-box{ max-width: none; }
+}
+@media (max-width: 480px){
+  .hero-stats{ gap: .7rem; }
+  .stat-chip{ min-width: 120px; padding: .8rem 1rem; }
+  .section{ padding: 4rem 1.2rem; }
+}
+
 </style>
 </head>
-<body>
+<body class="theme-dark">
 
-<div class="hero">
-  <svg class="circuit" viewBox="0 0 800 300" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-    <g stroke="var(--green)" stroke-width="1.5" fill="none">
-      <path d="M0 40 H180 V90 H400" />
-      <path d="M800 60 H620 V120 H430" />
-      <path d="M0 220 H150 V180 H320" />
-      <path d="M800 240 H650 V190 H460" />
-      <path d="M100 300 V260 H260" />
-      <path d="M700 300 V260 H540" />
-    </g>
-    <g fill="var(--orange)">
-      <circle cx="180" cy="40" r="4"/>
-      <circle cx="400" cy="90" r="4"/>
-      <circle cx="620" cy="60" r="4"/>
-      <circle cx="430" cy="120" r="4"/>
-      <circle cx="150" cy="220" r="4"/>
-      <circle cx="320" cy="180" r="4"/>
-      <circle cx="650" cy="240" r="4"/>
-      <circle cx="460" cy="190" r="4"/>
-    </g>
-  </svg>
+<canvas id="circuit-bg"></canvas>
+
+<!-- ===================== HEADER ===================== -->
+<header class="site-header" id="topo">
+  <div class="header-inner">
+    <a href="#topo" class="logo-lockup" aria-label="Divisão 00 - Início">
+      <svg class="logo-mark" viewBox="0 0 48 48" width="36" height="36" aria-hidden="true">
+        <polygon points="24,2 44,13 44,35 24,46 4,35 4,13" fill="none" stroke="currentColor" stroke-width="2"/>
+        <circle cx="24" cy="24" r="7" fill="none" stroke="currentColor" stroke-width="2"/>
+        <line x1="24" y1="2" x2="24" y2="17" stroke="currentColor" stroke-width="2"/>
+        <line x1="24" y1="31" x2="24" y2="46" stroke="currentColor" stroke-width="2"/>
+      </svg>
+      <span class="logo-text">DIVISÃO<em>00</em></span>
+    </a>
+
+    <nav class="main-nav" id="main-nav">
+      <a href="#topo" class="nav-link active">Início</a>
+      <a href="#regras" class="nav-link">Regras</a>
+      <a href="#projetos" class="nav-link">Projetos</a>
+      <a href="#equipes" class="nav-link">Equipes</a>
+      <a href="#login" class="nav-link">Login</a>
+      <a href="#cadastro" class="nav-link">Cadastro</a>
+      <a href="#membros" class="nav-link">Membros</a>
+    </nav>
+
+    <div class="header-actions">
+      <button id="theme-toggle" class="icon-btn" aria-label="Alternar tema" title="Alternar tema">
+        <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1Z"/></svg>
+      </button>
+      <button id="nav-toggle" class="hamburger" aria-label="Abrir menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- ===================== HERO ===================== -->
+<section class="hero" data-reveal>
   <div class="hero-content">
-    <div class="eyebrow">Divisão 00</div>
-    <h1>🤖 Clube de Robótica</h1>
-    <p class="sub">Inovação • Tecnologia • Trabalho em equipe</p>
-    <div class="status-line">&gt; sistema_online<span class="cursor">▌</span></div>
-    <br>
-    <button class="theme-btn" onclick="toggleTheme()">🌙 Alternar tema</button>
-  </div>
-</div>
-
-<nav>
-  <a href="#login">Login</a>
-  <a href="#cadastro">Cadastro</a>
-  <a href="#membros">Membros</a>
-  <a href="#projetos">Projetos</a>
-  <a href="#regras">Regras</a>
-  <a href="#equipes">Equipes</a>
-</nav>
-
-<!-- LOGIN -->
-<section id="login">
-  <h2><span class="tag">01 /</span> Login</h2>
-  <p class="lead">Entre com seu usuário e senha cadastrados.</p>
-
-  <div class="panel">
-    <div class="field">
-      <label for="login-user">Usuário</label>
-      <input id="login-user" type="text" placeholder="ex: joao123">
-    </div>
-    <div class="field">
-      <label for="login-pass">Senha</label>
-      <input id="login-pass" type="password" placeholder="••••••••">
-    </div>
-    <button class="btn-primary" onclick="handleLogin()">Entrar</button>
-    <div id="login-msg" class="msg"></div>
-    <div class="note">Sistema simples do clube — não use senhas que você utiliza em outros lugares.</div>
+    <svg class="hero-logo" viewBox="0 0 48 48" width="88" height="88" aria-hidden="true">
+      <polygon points="24,2 44,13 44,35 24,46 4,35 4,13" fill="none" stroke="currentColor" stroke-width="1.5"/>
+      <circle cx="24" cy="24" r="8" fill="none" stroke="currentColor" stroke-width="1.5"/>
+      <line x1="24" y1="2" x2="24" y2="16" stroke="currentColor" stroke-width="1.5"/>
+      <line x1="24" y1="32" x2="24" y2="46" stroke="currentColor" stroke-width="1.5"/>
+      <line x1="4" y1="13" x2="17" y2="20" stroke="currentColor" stroke-width="1.5"/>
+      <line x1="44" y1="35" x2="31" y2="28" stroke="currentColor" stroke-width="1.5"/>
+    </svg>
+    <p class="eyebrow">SISTEMA // CLUBE.ROBOTICA.ELETRONICA</p>
+    <h1 class="hero-title">DIVISÃO <span class="accent-green">00</span></h1>
+    <p class="hero-tagline">Criando o futuro através da robótica e da eletrônica.</p>
+    <a href="#regras" class="btn btn-primary">Conheça o Clube</a>
   </div>
 
-  <div id="welcome-box" style="display:none" class="welcome-panel">
-    <div style="font-family:var(--font-display);font-size:1.1em">
-      Olá, <span id="welcome-name"></span><span id="welcome-badge" class="badge"></span>
+  <div class="hero-stats" data-reveal>
+    <div class="stat-chip">
+      <span class="stat-number" id="stat-complexos" data-target="0">0</span>
+      <span class="stat-label">Projetos complexos</span>
     </div>
-    <p style="color:var(--muted);font-size:.9em;margin:10px 0 16px">Você está autenticado no sistema do clube.</p>
-    <button class="btn-secondary" onclick="handleLogout()">Sair</button>
+    <div class="stat-chip">
+      <span class="stat-number" id="stat-intermediarios" data-target="0">0</span>
+      <span class="stat-label">Intermediários</span>
+    </div>
+    <div class="stat-chip">
+      <span class="stat-number" id="stat-faceis" data-target="0">0</span>
+      <span class="stat-label">Fáceis</span>
+    </div>
+  </div>
+  <div class="scroll-hint">▾ role para explorar</div>
+</section>
+
+<!-- ===================== REGRAS ===================== -->
+<section class="section" id="regras" data-reveal>
+  <div class="section-head">
+    <p class="eyebrow">PROTOCOLO INTERNO</p>
+    <h2 class="section-title">Regras</h2>
+    <p class="section-sub">Normas que mantêm o laboratório seguro, organizado e funcional para todos os integrantes.</p>
+  </div>
+
+  <div class="accordion" id="accordion-regras">
+
+    <article class="acc-item" data-reveal>
+      <button class="acc-trigger" aria-expanded="true">
+        <span class="acc-icon">01</span>
+        <span class="acc-title">Presença</span>
+        <span class="acc-plus">+</span>
+      </button>
+      <div class="acc-panel" style="max-height:200px">
+        <ul>
+          <li>Mínimo de 70% de presença nas reuniões, conforme anotação da coordenação.</li>
+        </ul>
+      </div>
+    </article>
+
+    <article class="acc-item" data-reveal>
+      <button class="acc-trigger" aria-expanded="false">
+        <span class="acc-icon">02</span>
+        <span class="acc-title">Renovação</span>
+        <span class="acc-plus">+</span>
+      </button>
+      <div class="acc-panel">
+        <ul>
+          <li>Renovação periódica sujeita às regras vigentes do clube.</li>
+        </ul>
+      </div>
+    </article>
+
+    <article class="acc-item" data-reveal>
+      <button class="acc-trigger" aria-expanded="false">
+        <span class="acc-icon">03</span>
+        <span class="acc-title">Novos membros</span>
+        <span class="acc-plus">+</span>
+      </button>
+      <div class="acc-panel">
+        <ul>
+          <li>Entrada de novos membros sujeita à votação dos participantes atuais.</li>
+        </ul>
+      </div>
+    </article>
+
+    <article class="acc-item" data-reveal>
+      <button class="acc-trigger" aria-expanded="false">
+        <span class="acc-icon">04</span>
+        <span class="acc-title">Compromisso</span>
+        <span class="acc-plus">+</span>
+      </button>
+      <div class="acc-panel">
+        <ul>
+          <li>Falta de interesse ou comprometimento pode gerar advertências e desligamento.</li>
+        </ul>
+      </div>
+    </article>
+
+    <article class="acc-item" data-reveal>
+      <button class="acc-trigger" aria-expanded="false">
+        <span class="acc-icon">05</span>
+        <span class="acc-title">Conhecimentos</span>
+        <span class="acc-plus">+</span>
+      </button>
+      <div class="acc-panel">
+        <ul>
+          <li>É necessário aprender o básico de elétrica para participar dos projetos.</li>
+        </ul>
+      </div>
+    </article>
+
   </div>
 </section>
 
-<!-- CADASTRO -->
-<section id="cadastro">
-  <h2><span class="tag">02 /</span> Cadastro de membro</h2>
-  <p class="lead">Preencha os dados para entrar no clube.</p>
+<!-- ===================== PROJETOS ===================== -->
+<section class="section section-alt" id="projetos" data-reveal>
+  <div class="section-head">
+    <p class="eyebrow">REGISTRO DE DESENVOLVIMENTO</p>
+    <h2 class="section-title">Projetos</h2>
+    <p class="section-sub">Divisão dos trabalhos do clube, organizados por nível de dificuldade.</p>
+  </div>
 
-  <div class="panel">
-    <div class="field">
-      <label for="reg-name">Nome completo</label>
-      <input id="reg-name" type="text" placeholder="ex: João Silva">
+  <div class="controls-bar">
+    <div class="search-box">
+      <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 1 0-.7.7l.27.28v.79l5 5L20.49 19l-5-5Zm-6 0A4.5 4.5 0 1 1 14 9.5 4.5 4.5 0 0 1 9.5 14Z"/></svg>
+      <input type="text" id="project-search" placeholder="Pesquisar projeto por nome ou descrição..." aria-label="Pesquisar projetos">
     </div>
-    <div class="field">
-      <label for="reg-user">Usuário (sem espaços)</label>
-      <input id="reg-user" type="text" placeholder="ex: joaosilva">
+    <div class="filter-group" id="status-filters">
+      <button class="filter-btn active" data-filter="todos">Todos</button>
+      <button class="filter-btn" data-filter="complexo">Complexos</button>
+      <button class="filter-btn" data-filter="intermediario">Intermediários</button>
+      <button class="filter-btn" data-filter="facil">Fáceis</button>
     </div>
-    <div class="field">
-      <label for="reg-pass">Senha</label>
-      <input id="reg-pass" type="password" placeholder="••••••••">
+  </div>
+
+  <div class="project-grid" id="project-grid"></div>
+  <p class="empty-state" id="project-empty" hidden>Nenhum projeto encontrado com esses filtros.</p>
+</section>
+
+<!-- ===================== EQUIPES ===================== -->
+<section class="section" id="equipes" data-reveal>
+  <div class="section-head">
+    <p class="eyebrow">TIMES DO CLUBE</p>
+    <h2 class="section-title">Equipes</h2>
+    <p class="section-sub">Duplas e trios responsáveis por cada projeto da Divisão 00.</p>
+  </div>
+
+  <div class="member-grid" id="team-grid"></div>
+</section>
+
+<!-- ===================== LOGIN ===================== -->
+<section class="section section-alt" id="login" data-reveal>
+  <div class="section-head">
+    <p class="eyebrow">ACESSO AO SISTEMA</p>
+    <h2 class="section-title">Login</h2>
+    <p class="section-sub">Entre com seu usuário e senha cadastrados no clube.</p>
+  </div>
+
+  <div class="auth-wrap">
+    <div class="card auth-card">
+      <div class="field">
+        <label for="login-user">Usuário</label>
+        <input id="login-user" type="text" placeholder="ex: joao123">
+      </div>
+      <div class="field">
+        <label for="login-pass">Senha</label>
+        <input id="login-pass" type="password" placeholder="••••••••">
+      </div>
+      <button class="btn btn-primary" onclick="handleLogin()" style="width:100%">Entrar</button>
+      <div id="login-msg" class="msg"></div>
+      <p class="note-text">Sistema simples do clube — não use senhas que você utiliza em outros lugares.</p>
     </div>
-    <div class="field">
-      <label for="reg-role">Papel no clube</label>
-      <select id="reg-role">
-        <option value="Membro">Membro</option>
-        <option value="Líder">Líder</option>
-      </select>
-    </div>
-    <button class="btn-primary" onclick="handleRegister()">Cadastrar</button>
-    <div id="reg-msg" class="msg"></div>
-    <div class="note">Os dados ficam salvos e são visíveis a todos que acessarem esta página do clube.</div>
+  </div>
+
+  <div id="welcome-box" style="display:none" class="card welcome-card">
+    <h3>Olá, <span id="welcome-name"></span><span id="welcome-badge" class="badge-role"></span></h3>
+    <p style="color:var(--muted);font-size:.9rem;margin:.5rem 0 1.2rem">Você está autenticado no sistema do clube.</p>
+    <button class="btn btn-secondary" onclick="handleLogout()">Sair</button>
   </div>
 </section>
 
-<!-- MEMBROS -->
-<section id="membros">
-  <h2><span class="tag">03 /</span> Membros cadastrados</h2>
-  <p class="lead">Lista de todos os membros já registrados no sistema.</p>
-  <div id="members-table-wrap">
-    <div class="empty-state">Carregando membros...</div>
+<!-- ===================== CADASTRO ===================== -->
+<section class="section" id="cadastro" data-reveal>
+  <div class="section-head">
+    <p class="eyebrow">NOVO INTEGRANTE</p>
+    <h2 class="section-title">Cadastro de membro</h2>
+    <p class="section-sub">Preencha os dados para entrar no clube.</p>
+  </div>
+
+  <div class="auth-wrap">
+    <div class="card auth-card">
+      <div class="field">
+        <label for="reg-name">Nome completo</label>
+        <input id="reg-name" type="text" placeholder="ex: João Silva">
+      </div>
+      <div class="field">
+        <label for="reg-user">Usuário (sem espaços)</label>
+        <input id="reg-user" type="text" placeholder="ex: joaosilva">
+      </div>
+      <div class="field">
+        <label for="reg-pass">Senha</label>
+        <input id="reg-pass" type="password" placeholder="••••••••">
+      </div>
+      <div class="field">
+        <label for="reg-role">Papel no clube</label>
+        <select id="reg-role">
+          <option value="Membro">Membro</option>
+          <option value="Líder">Líder</option>
+        </select>
+      </div>
+      <button class="btn btn-primary" onclick="handleRegister()" style="width:100%">Cadastrar</button>
+      <div id="reg-msg" class="msg"></div>
+      <p class="note-text">Os dados ficam salvos no banco de dados do clube e são visíveis a todos que acessarem esta página.</p>
+    </div>
   </div>
 </section>
 
-<!-- PROJETOS -->
-<section id="projetos">
-  <h2><span class="tag">04 /</span> Divisão dos trabalhos</h2>
-  <p class="lead">Projetos organizados por nível de complexidade.</p>
-  <div class="cards">
-    <div class="card"><h3>🔴 Complexos</h3><ul><li>Drone</li><li>Trem</li><li>Barco</li></ul></div>
-    <div class="card"><h3>🟡 Intermediários</h3><ul><li>Carro de combate</li><li>Fonte de água</li><li>Helicóptero</li><li>Rastreador solar</li><li>Aspirador</li></ul></div>
-    <div class="card"><h3>🟢 Fáceis</h3><ul><li>Ventilador</li><li>Mini hidrelétrica</li><li>Lixeira inteligente</li></ul></div>
+<!-- ===================== MEMBROS ===================== -->
+<section class="section section-alt" id="membros" data-reveal>
+  <div class="section-head">
+    <p class="eyebrow">BANCO DE DADOS</p>
+    <h2 class="section-title">Membros cadastrados</h2>
+    <p class="section-sub">Lista de todos os membros já registrados no sistema.</p>
+  </div>
+
+  <div class="members-table-wrap" id="members-table-wrap">
+    <p class="empty-state">Carregando membros...</p>
   </div>
 </section>
 
-<!-- REGRAS -->
-<section id="regras">
-  <h2><span class="tag">05 /</span> Regras</h2>
-  <details open><summary>Presença</summary><div class="body-text">Mínimo de 70% de presença (conforme anotação).</div></details>
-  <details><summary>Renovação</summary><div class="body-text">Renovação periódica sujeita às regras do clube.</div></details>
-  <details><summary>Novos membros</summary><div class="body-text">Entrada sujeita à votação.</div></details>
-  <details><summary>Compromisso</summary><div class="body-text">Falta de interesse pode gerar advertências e desligamento.</div></details>
-  <details><summary>Conhecimentos</summary><div class="body-text">É necessário aprender o básico de elétrica.</div></details>
-</section>
-
-<!-- EQUIPES -->
-<section id="equipes">
-  <h2><span class="tag">06 /</span> Equipes</h2>
-  <div class="cards">
-    <div class="card">Flávio &amp; Victor</div>
-    <div class="card">Deivison &amp; Marcos</div>
-    <div class="card">Perla &amp; Anny</div>
-    <div class="card">Alan &amp; Fabrício</div>
-    <div class="card">Melissa &amp; Kaio</div>
-    <div class="card">Luana, Luiz &amp; Eduarda</div>
+<!-- ===================== FOOTER ===================== -->
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <svg class="logo-mark" viewBox="0 0 48 48" width="30" height="30" aria-hidden="true">
+        <polygon points="24,2 44,13 44,35 24,46 4,35 4,13" fill="none" stroke="currentColor" stroke-width="2"/>
+        <circle cx="24" cy="24" r="7" fill="none" stroke="currentColor" stroke-width="2"/>
+      </svg>
+      <span>DIVISÃO 00</span>
+    </div>
+    <p class="footer-copy">© <span id="year"></span> Divisão 00 — Clube de Robótica e Eletrônica. Todos os direitos reservados.</p>
+    <div class="footer-social">
+      <a href="#" aria-label="Instagram" class="social-btn">
+        <svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M12 2c2.7 0 3.05.01 4.12.06 1.06.05 1.79.22 2.43.47.66.26 1.22.6 1.77 1.15.55.55.9 1.11 1.15 1.77.25.64.42 1.37.47 2.43.05 1.07.06 1.42.06 4.12s-.01 3.05-.06 4.12c-.05 1.06-.22 1.79-.47 2.43a4.9 4.9 0 0 1-1.15 1.77 4.9 4.9 0 0 1-1.77 1.15c-.64.25-1.37.42-2.43.47-1.07.05-1.42.06-4.12.06s-3.05-.01-4.12-.06c-1.06-.05-1.79-.22-2.43-.47a4.9 4.9 0 0 1-1.77-1.15 4.9 4.9 0 0 1-1.15-1.77c-.25-.64-.42-1.37-.47-2.43C2.01 15.05 2 14.7 2 12s.01-3.05.06-4.12c.05-1.06.22-1.79.47-2.43.26-.66.6-1.22 1.15-1.77.55-.55 1.11-.9 1.77-1.15.64-.25 1.37-.42 2.43-.47C8.95 2.01 9.3 2 12 2Zm0 5a5 5 0 1 0 0 10 5 5 0 0 0 0-10Zm0 8.2a3.2 3.2 0 1 1 0-6.4 3.2 3.2 0 0 1 0 6.4Zm5.4-8.4a1.17 1.17 0 1 1-2.34 0 1.17 1.17 0 0 1 2.34 0Z"/></svg>
+      </a>
+      <a href="#" aria-label="YouTube" class="social-btn">
+        <svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M21.6 7.2s-.21-1.5-.86-2.16c-.82-.87-1.74-.87-2.16-.92C15.6 4 12 4 12 4h-.01s-3.6 0-6.58.12c-.42.05-1.34.05-2.16.92-.65.66-.86 2.16-.86 2.16S2.18 8.96 2.18 10.7v1.6c0 1.75.21 3.5.21 3.5s.21 1.5.86 2.16c.82.87 1.9.84 2.38.93 1.73.17 7.37.22 7.37.22s3.6-.01 6.58-.13c.42-.05 1.34-.05 2.16-.92.65-.66.86-2.16.86-2.16s.21-1.75.21-3.5v-1.6c0-1.74-.21-3.5-.21-3.5ZM9.75 14.9V8.6l5.75 3.15-5.75 3.15Z"/></svg>
+      </a>
+      <a href="#" aria-label="GitHub" class="social-btn">
+        <svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M12 2a10 10 0 0 0-3.16 19.49c.5.09.68-.22.68-.48v-1.7c-2.78.6-3.37-1.34-3.37-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.89 1.53 2.34 1.09 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.56-1.11-4.56-4.94 0-1.09.39-1.98 1.03-2.68-.1-.25-.45-1.27.1-2.65 0 0 .84-.27 2.75 1.02a9.5 9.5 0 0 1 5 0c1.91-1.3 2.75-1.02 2.75-1.02.55 1.38.2 2.4.1 2.65.64.7 1.03 1.59 1.03 2.68 0 3.84-2.34 4.68-4.57 4.93.36.31.68.92.68 1.85v2.74c0 .27.18.58.69.48A10 10 0 0 0 12 2Z"/></svg>
+      </a>
+    </div>
   </div>
-</section>
-
-<footer>v2.0 // Fase 1 — Login &amp; Cadastro // Clube de Robótica, Divisão 00</footer>
+</footer>
 
 <script>
-// ======================================================
-// CONFIGURAÇÃO DO SUPABASE — troque pelos valores do seu projeto
-// (Project Settings → API, no painel do Supabase)
-// ======================================================
+/* =========================================================
+   DIVISÃO 00 — script.js
+   ========================================================= */
+
+document.getElementById('year').textContent = new Date().getFullYear();
+
+/* ---------------------------------------------------------
+   0. SUPABASE (login, cadastro, membros)
+   --------------------------------------------------------- */
 const SUPABASE_URL = 'https://jxtgrslrrdrnvbhuondt.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_E-7Dh2vzMvAIw9AsRR9sRA_1Wk_wIGz';
-
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let currentUser = null; // sessão em memória (não persiste ao recarregar a página)
 
-function toggleTheme(){
-  document.body.classList.toggle('light');
-}
-
 function sanitizeUsername(raw){
   return raw.trim().toLowerCase().replace(/[^a-z0-9_]/g,'');
+}
+
+function escapeHtml(str){
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
 }
 
 async function handleRegister(){
@@ -536,35 +1130,354 @@ async function loadMembers(){
       .order('name', { ascending: true });
 
     if(error){
-      wrap.innerHTML = '<div class="empty-state">Não foi possível carregar os membros agora.</div>';
+      wrap.innerHTML = '<p class="empty-state">Não foi possível carregar os membros agora.</p>';
       console.error(error);
       return;
     }
 
     if(!records || records.length === 0){
-      wrap.innerHTML = '<div class="empty-state">Nenhum membro cadastrado ainda. Use o formulário de cadastro acima.</div>';
+      wrap.innerHTML = '<p class="empty-state">Nenhum membro cadastrado ainda. Use o formulário de cadastro acima.</p>';
       return;
     }
 
-    let html = '<table><thead><tr><th>Nome</th><th>Usuário</th><th>Papel</th></tr></thead><tbody>';
+    let html = '<table class="members-table"><thead><tr><th>Nome</th><th>Usuário</th><th>Papel</th></tr></thead><tbody>';
     for(const m of records){
       html += `<tr><td>${escapeHtml(m.name)}</td><td>${escapeHtml(m.user_name)}</td><td>${escapeHtml(m.role)}</td></tr>`;
     }
     html += '</tbody></table>';
     wrap.innerHTML = html;
   }catch(err){
-    wrap.innerHTML = '<div class="empty-state">Não foi possível carregar os membros agora.</div>';
+    wrap.innerHTML = '<p class="empty-state">Não foi possível carregar os membros agora.</p>';
     console.error(err);
   }
 }
 
-function escapeHtml(str){
-  const div = document.createElement('div');
-  div.textContent = str;
-  return div.innerHTML;
+/* ---------------------------------------------------------
+   1. DADOS (edite aqui para atualizar o conteúdo do site)
+   --------------------------------------------------------- */
+const PROJECTS = [
+  { id:'drone', nome:'Drone', status:'complexo', categoria:'Aeroespacial', descricao:'Projeto de voo autônomo com controle remoto e sensores de estabilização.' },
+  { id:'trem', nome:'Trem', status:'complexo', categoria:'Automação', descricao:'Sistema ferroviário automatizado com trilhos e controle de movimento.' },
+  { id:'barco', nome:'Barco', status:'complexo', categoria:'Automação', descricao:'Embarcação motorizada com navegação controlada remotamente.' },
+  { id:'carro-combate', nome:'Carro de combate', status:'intermediario', categoria:'Robótica', descricao:'Veículo robótico de combate com estrutura resistente e mobilidade tática.' },
+  { id:'fonte-agua', nome:'Fonte de água', status:'intermediario', categoria:'Automação', descricao:'Fonte decorativa com bombeamento e iluminação automatizados.' },
+  { id:'helicoptero', nome:'Helicóptero', status:'intermediario', categoria:'Aeroespacial', descricao:'Modelo de helicóptero com rotores controlados eletronicamente.' },
+  { id:'rastreador-solar', nome:'Rastreador solar', status:'intermediario', categoria:'IoT', descricao:'Painel solar que se orienta automaticamente conforme a posição do sol.' },
+  { id:'aspirador', nome:'Aspirador', status:'intermediario', categoria:'Robótica', descricao:'Robô aspirador autônomo com sensores de desvio de obstáculos.' },
+  { id:'ventilador', nome:'Ventilador', status:'facil', categoria:'Automação', descricao:'Ventilador elétrico simples, projeto introdutório de eletrônica básica.' },
+  { id:'mini-hidreletrica', nome:'Mini hidrelétrica', status:'facil', categoria:'IoT', descricao:'Geração de energia em pequena escala a partir do fluxo de água.' },
+  { id:'lixeira-inteligente', nome:'Lixeira inteligente', status:'facil', categoria:'IoT', descricao:'Lixeira com sensor de presença que abre automaticamente a tampa.' }
+];
+
+const TEAMS = [
+  { nome:'Flávio & Victor' },
+  { nome:'Deivison & Marcos' },
+  { nome:'Perla & Anny' },
+  { nome:'Alan & Fabrício' },
+  { nome:'Melissa & Kaio' },
+  { nome:'Luana, Luiz & Eduarda' }
+];
+
+/* ---------------------------------------------------------
+   2. RENDER: ícone SVG genérico para cada categoria de projeto
+   --------------------------------------------------------- */
+function projectIcon(categoria){
+  const icons = {
+    'Robótica': '<circle cx="50" cy="35" r="14"/><rect x="38" y="52" width="24" height="20" rx="3"/><line x1="50" y1="21" x2="50" y2="10"/><line x1="30" y1="60" x2="18" y2="60"/><line x1="70" y1="60" x2="82" y2="60"/>',
+    'IoT': '<circle cx="50" cy="50" r="6"/><circle cx="50" cy="50" r="18" fill="none"/><circle cx="50" cy="50" r="30" fill="none"/>',
+    'Automação': '<rect x="25" y="25" width="50" height="50" rx="4" fill="none"/><line x1="25" y1="42" x2="75" y2="42"/><line x1="25" y1="58" x2="75" y2="58"/><circle cx="35" cy="33" r="2.5"/>',
+    'Aeroespacial': '<line x1="20" y1="50" x2="80" y2="50"/><line x1="50" y1="20" x2="50" y2="80"/><circle cx="50" cy="50" r="10" fill="none"/>'
+  };
+  const shape = icons[categoria] || icons['Robótica'];
+  return `<svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="2.2" style="color:var(--blue)">${shape}</svg>`;
 }
 
-loadMembers();
+const statusLabel = { complexo: 'Complexo', intermediario: 'Intermediário', facil: 'Fácil' };
+
+function renderProjects(list){
+  const grid = document.getElementById('project-grid');
+  const empty = document.getElementById('project-empty');
+  grid.innerHTML = '';
+  empty.hidden = list.length !== 0;
+
+  list.forEach(p => {
+    const card = document.createElement('article');
+    card.className = 'card project-card';
+    card.setAttribute('data-reveal', '');
+    card.innerHTML = `
+      <div class="card-media">${projectIcon(p.categoria)}</div>
+      <span class="status-badge status-${p.status}">${statusLabel[p.status]}</span>
+      <h3 class="card-title">${p.nome}</h3>
+      <p class="card-desc">${p.descricao}</p>
+    `;
+    grid.appendChild(card);
+    requestAnimationFrame(() => card.classList.add('is-visible'));
+  });
+}
+
+function renderTeams(list){
+  const grid = document.getElementById('team-grid');
+  grid.innerHTML = '';
+  list.forEach(t => {
+    const initials = t.nome.split(/[\s,&]+/).filter(Boolean).map(w => w[0]).slice(0,2).join('').toUpperCase();
+    const card = document.createElement('article');
+    card.className = 'card team-card';
+    card.setAttribute('data-reveal', '');
+    card.innerHTML = `
+      <div class="team-avatar">${initials}</div>
+      <p class="team-name">${t.nome}</p>
+    `;
+    grid.appendChild(card);
+    requestAnimationFrame(() => card.classList.add('is-visible'));
+  });
+}
+
+/* ---------------------------------------------------------
+   3. FILTROS DE PROJETOS (status + busca)
+   --------------------------------------------------------- */
+let currentStatusFilter = 'todos';
+let currentSearch = '';
+
+function applyProjectFilters(){
+  let list = PROJECTS;
+  if (currentStatusFilter !== 'todos'){
+    list = list.filter(p => p.status === currentStatusFilter);
+  }
+  if (currentSearch.trim() !== ''){
+    const q = currentSearch.toLowerCase();
+    list = list.filter(p =>
+      p.nome.toLowerCase().includes(q) ||
+      p.descricao.toLowerCase().includes(q) ||
+      p.categoria.toLowerCase().includes(q)
+    );
+  }
+  renderProjects(list);
+}
+
+document.getElementById('status-filters').addEventListener('click', (e) => {
+  const btn = e.target.closest('.filter-btn');
+  if (!btn) return;
+  document.querySelectorAll('#status-filters .filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentStatusFilter = btn.dataset.filter;
+  applyProjectFilters();
+});
+
+document.getElementById('project-search').addEventListener('input', (e) => {
+  currentSearch = e.target.value;
+  applyProjectFilters();
+});
+
+/* ---------------------------------------------------------
+   4. CONTADOR ANIMADO (estatísticas do hero)
+   --------------------------------------------------------- */
+function animateCount(el, target, duration = 1200){
+  const start = 0;
+  const startTime = performance.now();
+  function tick(now){
+    const progress = Math.min((now - startTime) / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3);
+    el.textContent = Math.round(start + (target - start) * eased);
+    if (progress < 1) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+
+function setupStats(){
+  const complexos = PROJECTS.filter(p => p.status === 'complexo').length;
+  const intermediarios = PROJECTS.filter(p => p.status === 'intermediario').length;
+  const faceis = PROJECTS.filter(p => p.status === 'facil').length;
+
+  document.getElementById('stat-complexos').dataset.target = complexos;
+  document.getElementById('stat-intermediarios').dataset.target = intermediarios;
+  document.getElementById('stat-faceis').dataset.target = faceis;
+}
+
+const statsObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting){
+      document.querySelectorAll('.stat-number').forEach(el => {
+        animateCount(el, parseInt(el.dataset.target, 10));
+      });
+      statsObserver.disconnect();
+    }
+  });
+}, { threshold: 0.4 });
+
+/* ---------------------------------------------------------
+   5. ACCORDION DE REGRAS
+   --------------------------------------------------------- */
+document.querySelectorAll('.acc-trigger').forEach(trigger => {
+  trigger.addEventListener('click', () => {
+    const panel = trigger.nextElementSibling;
+    const isOpen = trigger.getAttribute('aria-expanded') === 'true';
+    trigger.setAttribute('aria-expanded', String(!isOpen));
+    panel.style.maxHeight = isOpen ? '0px' : panel.scrollHeight + 'px';
+  });
+});
+
+/* ---------------------------------------------------------
+   6. NAVEGAÇÃO MOBILE + SCROLLSPY
+   --------------------------------------------------------- */
+const navToggle = document.getElementById('nav-toggle');
+const mainNav = document.getElementById('main-nav');
+navToggle.addEventListener('click', () => {
+  const isOpen = mainNav.classList.toggle('open');
+  navToggle.classList.toggle('open', isOpen);
+  navToggle.setAttribute('aria-expanded', String(isOpen));
+});
+document.querySelectorAll('.nav-link').forEach(link => {
+  link.addEventListener('click', () => {
+    mainNav.classList.remove('open');
+    navToggle.classList.remove('open');
+  });
+});
+
+const sections = ['topo', 'regras', 'projetos', 'equipes', 'login', 'cadastro', 'membros'].map(id => document.getElementById(id));
+const navLinks = document.querySelectorAll('.nav-link');
+const spyObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting){
+      navLinks.forEach(l => l.classList.remove('active'));
+      const active = document.querySelector(`.nav-link[href="#${entry.target.id}"]`);
+      if (active) active.classList.add('active');
+    }
+  });
+}, { rootMargin: '-40% 0px -55% 0px' });
+sections.forEach(s => s && spyObserver.observe(s));
+
+/* ---------------------------------------------------------
+   7. TEMA CLARO / ESCURO
+   --------------------------------------------------------- */
+document.getElementById('theme-toggle').addEventListener('click', () => {
+  document.body.classList.toggle('theme-light');
+  document.body.classList.toggle('theme-dark');
+});
+
+/* ---------------------------------------------------------
+   8. SCROLL REVEAL GENÉRICO
+   --------------------------------------------------------- */
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting){
+      entry.target.classList.add('is-visible');
+      revealObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.15 });
+
+function observeReveals(){
+  document.querySelectorAll('[data-reveal]').forEach(el => revealObserver.observe(el));
+}
+
+/* ---------------------------------------------------------
+   9. FUNDO DE CIRCUITO ANIMADO (canvas)
+   --------------------------------------------------------- */
+function initCircuitBackground(){
+  const canvas = document.getElementById('circuit-bg');
+  const ctx = canvas.getContext('2d');
+  let w, h, nodes = [], pulses = [];
+
+  function resize(){
+    w = canvas.width = window.innerWidth;
+    h = canvas.height = document.documentElement.scrollHeight;
+    buildGrid();
+  }
+
+  function buildGrid(){
+    nodes = [];
+    const cols = Math.ceil(w / 140);
+    const rows = Math.ceil(h / 140);
+    for (let i = 0; i <= cols; i++){
+      for (let j = 0; j <= rows; j++){
+        if (Math.random() > 0.55){
+          nodes.push({ x: i * 140 + (Math.random()*40-20), y: j * 140 + (Math.random()*40-20) });
+        }
+      }
+    }
+    pulses = [];
+    for (let i = 0; i < 14; i++) spawnPulse();
+  }
+
+  function nearestNodes(node, count){
+    return nodes
+      .filter(n => n !== node)
+      .map(n => ({ n, d: Math.hypot(n.x - node.x, n.y - node.y) }))
+      .sort((a,b) => a.d - b.d)
+      .slice(0, count)
+      .map(o => o.n);
+  }
+
+  function spawnPulse(){
+    if (nodes.length < 2) return;
+    const start = nodes[Math.floor(Math.random() * nodes.length)];
+    const neighbors = nearestNodes(start, 3);
+    const end = neighbors[Math.floor(Math.random() * neighbors.length)];
+    if (!end) return;
+    pulses.push({ start, end, t: 0, speed: 0.006 + Math.random() * 0.008, color: Math.random() > 0.5 ? '57,255,136' : '47,184,255' });
+  }
+
+  function draw(){
+    ctx.clearRect(0, 0, w, h);
+
+    ctx.strokeStyle = 'rgba(57,255,136,0.06)';
+    ctx.lineWidth = 1;
+    nodes.forEach(node => {
+      nearestNodes(node, 2).forEach(n => {
+        ctx.beginPath();
+        ctx.moveTo(node.x, node.y);
+        ctx.lineTo(n.x, n.y);
+        ctx.stroke();
+      });
+    });
+
+    ctx.fillStyle = 'rgba(47,184,255,0.25)';
+    nodes.forEach(n => {
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, 1.6, 0, Math.PI * 2);
+      ctx.fill();
+    });
+
+    pulses.forEach((p, idx) => {
+      p.t += p.speed;
+      const x = p.start.x + (p.end.x - p.start.x) * p.t;
+      const y = p.start.y + (p.end.y - p.start.y) * p.t;
+      ctx.beginPath();
+      ctx.arc(x, y, 2.4, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(${p.color},0.9)`;
+      ctx.shadowBlur = 8;
+      ctx.shadowColor = `rgba(${p.color},1)`;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+      if (p.t >= 1){
+        pulses.splice(idx, 1);
+        spawnPulse();
+      }
+    });
+
+    requestAnimationFrame(draw);
+  }
+
+  window.addEventListener('resize', resize);
+  resize();
+  draw();
+}
+
+/* ---------------------------------------------------------
+   INIT
+   --------------------------------------------------------- */
+document.addEventListener('DOMContentLoaded', () => {
+  setupStats();
+  renderProjects(PROJECTS);
+  renderTeams(TEAMS);
+  observeReveals();
+  statsObserver.observe(document.querySelector('.hero-stats'));
+  loadMembers();
+  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+    initCircuitBackground();
+  }
+});
+
 </script>
 </body>
 </html>
