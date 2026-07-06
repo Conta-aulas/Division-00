@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Clube de Robótica — Divisão 00</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root{
+    --bg:#0a0e14;
+    --bg-alt:#0f1420;
+    --panel:#131a26;
+    --border:#223247;
+    --green:#39d97a;
+    --green-dim:#1f6b42;
+    --orange:#ff8c42;
+    --text:#e8f0f5;
+    --muted:#7d92a6;
+    --danger:#ff5f5f;
+    --font-display:'JetBrains Mono',monospace;
+    --font-body:'Inter',sans-serif;
+  }
+  body.light{
+    --bg:#f2f6f9;
+    --bg-alt:#e7edf2;
+    --panel:#ffffff;
+    --border:#d7e0e8;
+    --text:#141d27;
+    --muted:#55677a;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--font-body);
+    transition:background .3s ease,color .3s ease;
+  }
+  a{color:inherit}
+
+  /* ---------- HERO ---------- */
+  .hero{
+    position:relative;
+    overflow:hidden;
+    padding:70px 20px 50px;
+    text-align:center;
+    background:linear-gradient(180deg,var(--bg-alt),var(--bg));
+    border-bottom:1px solid var(--border);
+  }
+  .hero svg.circuit{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    opacity:.25;
+    pointer-events:none;
+  }
+  .hero-content{position:relative;z-index:1}
+  .eyebrow{
+    font-family:var(--font-display);
+    letter-spacing:.15em;
+    color:var(--green);
+    font-size:.8em;
+    text-transform:uppercase;
+  }
+  h1{
+    font-family:var(--font-display);
+    font-size:2.6em;
+    margin:.3em 0 .1em;
+    font-weight:800;
+    letter-spacing:-.01em;
+  }
+  .hero p.sub{color:var(--muted);margin:0 0 20px;font-size:1.05em}
+  .status-line{
+    display:inline-block;
+    font-family:var(--font-display);
+    font-size:.85em;
+    color:var(--green);
+    background:rgba(57,217,122,.08);
+    border:1px solid var(--green-dim);
+    padding:6px 14px;
+    border-radius:6px;
+    margin-bottom:22px;
+  }
+  .status-line .cursor{animation:blink 1s step-end infinite}
+  @keyframes blink{50%{opacity:0}}
+  @media (prefers-reduced-motion:reduce){.status-line .cursor{animation:none}}
+
+  button.theme-btn{
+    font-family:var(--font-display);
+    background:transparent;
+    border:1px solid var(--border);
+    color:var(--text);
+    padding:10px 16px;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:.85em;
+  }
+  button.theme-btn:hover{border-color:var(--green)}
+
+  /* ---------- NAV ---------- */
+  nav{
+    display:flex;
+    justify-content:center;
+    gap:8px;
+    flex-wrap:wrap;
+    padding:14px;
+    background:var(--panel);
+    border-bottom:1px solid var(--border);
+    position:sticky;
+    top:0;
+    z-index:10;
+  }
+  nav a{
+    font-family:var(--font-display);
+    font-size:.82em;
+    text-decoration:none;
+    padding:9px 16px;
+    border:1px solid var(--border);
+    border-radius:20px;
+    color:var(--text);
+    transition:.2s;
+  }
+  nav a:hover{border-color:var(--green);color:var(--green)}
+
+  section{max-width:1000px;margin:auto;padding:50px 20px}
+  h2{
+    font-family:var(--font-display);
+    font-size:1.5em;
+    margin-bottom:6px;
+  }
+  h2 .tag{color:var(--orange)}
+  .lead{color:var(--muted);margin:0 0 26px;font-size:.95em}
+
+  /* ---------- CARDS ---------- */
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+  .card{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:20px;
+    transition:.25s;
+  }
+  .card:hover{transform:translateY(-4px);border-color:var(--green);box-shadow:0 8px 24px -12px var(--green-dim)}
+  .card h3{margin-top:0;font-family:var(--font-display);font-size:1.05em}
+  .card ul{margin:0;padding-left:1.1em;color:var(--muted)}
+
+  /* ---------- DETAILS ---------- */
+  details{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:14px 16px;
+    margin:10px 0;
+  }
+  details summary{cursor:pointer;font-family:var(--font-display);font-size:.92em}
+  details[open] summary{color:var(--green)}
+  details div.body-text{padding-top:10px;color:var(--muted);font-size:.92em}
+
+  /* ---------- FORMS ---------- */
+  .panel{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:26px;
+    max-width:480px;
+  }
+  .field{margin-bottom:16px}
+  .field label{
+    display:block;
+    font-family:var(--font-display);
+    font-size:.78em;
+    color:var(--muted);
+    margin-bottom:6px;
+    text-transform:uppercase;
+    letter-spacing:.04em;
+  }
+  .field input,.field select{
+    width:100%;
+    padding:10px 12px;
+    border-radius:8px;
+    border:1px solid var(--border);
+    background:var(--bg-alt);
+    color:var(--text);
+    font-family:var(--font-body);
+    font-size:.95em;
+  }
+  .field input:focus,.field select:focus{outline:2px solid var(--green);outline-offset:1px}
+  .btn-primary{
+    font-family:var(--font-display);
+    background:var(--green);
+    color:#05130a;
+    border:none;
+    padding:11px 20px;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:600;
+    font-size:.88em;
+  }
+  .btn-primary:hover{background:#4fe58d}
+  .btn-secondary{
+    font-family:var(--font-display);
+    background:transparent;
+    border:1px solid var(--border);
+    color:var(--text);
+    padding:11px 20px;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:.88em;
+  }
+  .btn-secondary:hover{border-color:var(--orange);color:var(--orange)}
+  .msg{font-size:.85em;margin-top:10px;font-family:var(--font-body)}
+  .msg.ok{color:var(--green)}
+  .msg.err{color:var(--danger)}
+  .note{font-size:.78em;color:var(--muted);margin-top:16px}
+
+  .welcome-panel{
+    background:var(--panel);
+    border:1px solid var(--green-dim);
+    border-radius:14px;
+    padding:22px 26px;
+    max-width:480px;
+    margin-top:18px;
+  }
+  .badge{
+    display:inline-block;
+    font-family:var(--font-display);
+    font-size:.72em;
+    background:rgba(255,140,66,.12);
+    color:var(--orange);
+    border:1px solid var(--orange);
+    padding:2px 10px;
+    border-radius:20px;
+    margin-left:8px;
+  }
+
+  /* ---------- MEMBER TABLE ---------- */
+  table{width:100%;border-collapse:collapse;background:var(--panel);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+  th,td{padding:12px 14px;text-align:left;font-size:.9em;border-bottom:1px solid var(--border)}
+  th{font-family:var(--font-display);font-size:.75em;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+  tr:last-child td{border-bottom:none}
+  .empty-state{color:var(--muted);font-size:.9em;padding:20px;text-align:center}
+
+  footer{text-align:center;padding:34px 20px;color:var(--muted);font-family:var(--font-display);font-size:.78em;border-top:1px solid var(--border)}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <svg class="circuit" viewBox="0 0 800 300" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <g stroke="var(--green)" stroke-width="1.5" fill="none">
+      <path d="M0 40 H180 V90 H400" />
+      <path d="M800 60 H620 V120 H430" />
+      <path d="M0 220 H150 V180 H320" />
+      <path d="M800 240 H650 V190 H460" />
+      <path d="M100 300 V260 H260" />
+      <path d="M700 300 V260 H540" />
+    </g>
+    <g fill="var(--orange)">
+      <circle cx="180" cy="40" r="4"/>
+      <circle cx="400" cy="90" r="4"/>
+      <circle cx="620" cy="60" r="4"/>
+      <circle cx="430" cy="120" r="4"/>
+      <circle cx="150" cy="220" r="4"/>
+      <circle cx="320" cy="180" r="4"/>
+      <circle cx="650" cy="240" r="4"/>
+      <circle cx="460" cy="190" r="4"/>
+    </g>
+  </svg>
+  <div class="hero-content">
+    <div class="eyebrow">Divisão 00</div>
+    <h1>🤖 Clube de Robótica</h1>
+    <p class="sub">Inovação • Tecnologia • Trabalho em equipe</p>
+    <div class="status-line">&gt; sistema_online<span class="cursor">▌</span></div>
+    <br>
+    <button class="theme-btn" onclick="toggleTheme()">🌙 Alternar tema</button>
+  </div>
+</div>
+
+<nav>
+  <a href="#login">Login</a>
+  <a href="#cadastro">Cadastro</a>
+  <a href="#membros">Membros</a>
+  <a href="#projetos">Projetos</a>
+  <a href="#regras">Regras</a>
+  <a href="#equipes">Equipes</a>
+</nav>
+
+<!-- LOGIN -->
+<section id="login">
+  <h2><span class="tag">01 /</span> Login</h2>
+  <p class="lead">Entre com seu usuário e senha cadastrados.</p>
+
+  <div class="panel">
+    <div class="field">
+      <label for="login-user">Usuário</label>
+      <input id="login-user" type="text" placeholder="ex: joao123">
+    </div>
+    <div class="field">
+      <label for="login-pass">Senha</label>
+      <input id="login-pass" type="password" placeholder="••••••••">
+    </div>
+    <button class="btn-primary" onclick="handleLogin()">Entrar</button>
+    <div id="login-msg" class="msg"></div>
+    <div class="note">Sistema simples do clube — não use senhas que você utiliza em outros lugares.</div>
+  </div>
+
+  <div id="welcome-box" style="display:none" class="welcome-panel">
+    <div style="font-family:var(--font-display);font-size:1.1em">
+      Olá, <span id="welcome-name"></span><span id="welcome-badge" class="badge"></span>
+    </div>
+    <p style="color:var(--muted);font-size:.9em;margin:10px 0 16px">Você está autenticado no sistema do clube.</p>
+    <button class="btn-secondary" onclick="handleLogout()">Sair</button>
+  </div>
+</section>
+
+<!-- CADASTRO -->
+<section id="cadastro">
+  <h2><span class="tag">02 /</span> Cadastro de membro</h2>
+  <p class="lead">Preencha os dados para entrar no clube.</p>
+
+  <div class="panel">
+    <div class="field">
+      <label for="reg-name">Nome completo</label>
+      <input id="reg-name" type="text" placeholder="ex: João Silva">
+    </div>
+    <div class="field">
+      <label for="reg-user">Usuário (sem espaços)</label>
+      <input id="reg-user" type="text" placeholder="ex: joaosilva">
+    </div>
+    <div class="field">
+      <label for="reg-pass">Senha</label>
+      <input id="reg-pass" type="password" placeholder="••••••••">
+    </div>
+    <div class="field">
+      <label for="reg-role">Papel no clube</label>
+      <select id="reg-role">
+        <option value="Membro">Membro</option>
+        <option value="Líder">Líder</option>
+      </select>
+    </div>
+    <button class="btn-primary" onclick="handleRegister()">Cadastrar</button>
+    <div id="reg-msg" class="msg"></div>
+    <div class="note">Os dados ficam salvos e são visíveis a todos que acessarem esta página do clube.</div>
+  </div>
+</section>
+
+<!-- MEMBROS -->
+<section id="membros">
+  <h2><span class="tag">03 /</span> Membros cadastrados</h2>
+  <p class="lead">Lista de todos os membros já registrados no sistema.</p>
+  <div id="members-table-wrap">
+    <div class="empty-state">Carregando membros...</div>
+  </div>
+</section>
+
+<!-- PROJETOS -->
+<section id="projetos">
+  <h2><span class="tag">04 /</span> Divisão dos trabalhos</h2>
+  <p class="lead">Projetos organizados por nível de complexidade.</p>
+  <div class="cards">
+    <div class="card"><h3>🔴 Complexos</h3><ul><li>Drone</li><li>Trem</li><li>Barco</li></ul></div>
+    <div class="card"><h3>🟡 Intermediários</h3><ul><li>Carro de combate</li><li>Fonte de água</li><li>Helicóptero</li><li>Rastreador solar</li><li>Aspirador</li></ul></div>
+    <div class="card"><h3>🟢 Fáceis</h3><ul><li>Ventilador</li><li>Mini hidrelétrica</li><li>Lixeira inteligente</li></ul></div>
+  </div>
+</section>
+
+<!-- REGRAS -->
+<section id="regras">
+  <h2><span class="tag">05 /</span> Regras</h2>
+  <details open><summary>Presença</summary><div class="body-text">Mínimo de 70% de presença (conforme anotação).</div></details>
+  <details><summary>Renovação</summary><div class="body-text">Renovação periódica sujeita às regras do clube.</div></details>
+  <details><summary>Novos membros</summary><div class="body-text">Entrada sujeita à votação.</div></details>
+  <details><summary>Compromisso</summary><div class="body-text">Falta de interesse pode gerar advertências e desligamento.</div></details>
+  <details><summary>Conhecimentos</summary><div class="body-text">É necessário aprender o básico de elétrica.</div></details>
+</section>
+
+<!-- EQUIPES -->
+<section id="equipes">
+  <h2><span class="tag">06 /</span> Equipes</h2>
+  <div class="cards">
+    <div class="card">Flávio &amp; Victor</div>
+    <div class="card">Deivison &amp; Marcos</div>
+    <div class="card">Perla &amp; Anny</div>
+    <div class="card">Alan &amp; Fabrício</div>
+    <div class="card">Melissa &amp; Kaio</div>
+    <div class="card">Luana, Luiz &amp; Eduarda</div>
+  </div>
+</section>
+
+<footer>v2.0 // Fase 1 — Login &amp; Cadastro // Clube de Robótica, Divisão 00</footer>
+
+<script>
+// ======================================================
+// CONFIGURAÇÃO DO SUPABASE — troque pelos valores do seu projeto
+// (Project Settings → API, no painel do Supabase)
+// ======================================================
+const SUPABASE_URL = 'https://jxtgrslrrdrnvbhuondt.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_E-7Dh2vzMvAIw9AsRR9sRA_1Wk_wIGz';
+
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let currentUser = null; // sessão em memória (não persiste ao recarregar a página)
+
+function toggleTheme(){
+  document.body.classList.toggle('light');
+}
+
+function sanitizeUsername(raw){
+  return raw.trim().toLowerCase().replace(/[^a-z0-9_]/g,'');
+}
+
+async function handleRegister(){
+  const name = document.getElementById('reg-name').value.trim();
+  const userRaw = document.getElementById('reg-user').value;
+  const pass = document.getElementById('reg-pass').value;
+  const role = document.getElementById('reg-role').value;
+  const msgEl = document.getElementById('reg-msg');
+  const user = sanitizeUsername(userRaw);
+
+  msgEl.textContent = '';
+  msgEl.className = 'msg';
+
+  if(!name || !user || !pass){
+    msgEl.textContent = 'Preencha nome, usuário e senha.';
+    msgEl.classList.add('err');
+    return;
+  }
+
+  try{
+    const { data: existing, error: checkError } = await db
+      .from('membros')
+      .select('id')
+      .eq('user_name', user)
+      .maybeSingle();
+
+    if(checkError){
+      msgEl.textContent = 'Erro ao verificar usuário. Tente novamente.';
+      msgEl.classList.add('err');
+      console.error(checkError);
+      return;
+    }
+
+    if(existing){
+      msgEl.textContent = 'Esse usuário já existe. Escolha outro.';
+      msgEl.classList.add('err');
+      return;
+    }
+
+    const { error: insertError } = await db
+      .from('membros')
+      .insert({ name, user_name: user, pass, role });
+
+    if(insertError){
+      msgEl.textContent = 'Não foi possível salvar. Tente novamente.';
+      msgEl.classList.add('err');
+      console.error(insertError);
+      return;
+    }
+
+    msgEl.textContent = 'Cadastro realizado! Agora você já pode fazer login.';
+    msgEl.classList.add('ok');
+    document.getElementById('reg-name').value = '';
+    document.getElementById('reg-user').value = '';
+    document.getElementById('reg-pass').value = '';
+    loadMembers();
+  }catch(err){
+    msgEl.textContent = 'Erro ao cadastrar. Tente novamente.';
+    msgEl.classList.add('err');
+    console.error(err);
+  }
+}
+
+async function handleLogin(){
+  const userRaw = document.getElementById('login-user').value;
+  const pass = document.getElementById('login-pass').value;
+  const msgEl = document.getElementById('login-msg');
+  const user = sanitizeUsername(userRaw);
+
+  msgEl.textContent = '';
+  msgEl.className = 'msg';
+
+  if(!user || !pass){
+    msgEl.textContent = 'Preencha usuário e senha.';
+    msgEl.classList.add('err');
+    return;
+  }
+
+  try{
+    const { data: record, error } = await db
+      .from('membros')
+      .select('name, user_name, pass, role')
+      .eq('user_name', user)
+      .maybeSingle();
+
+    if(error){
+      msgEl.textContent = 'Erro ao entrar. Tente novamente.';
+      msgEl.classList.add('err');
+      console.error(error);
+      return;
+    }
+
+    if(!record || record.pass !== pass){
+      msgEl.textContent = 'Usuário ou senha incorretos.';
+      msgEl.classList.add('err');
+      return;
+    }
+
+    currentUser = record;
+    msgEl.textContent = '';
+    document.getElementById('welcome-name').textContent = record.name;
+    document.getElementById('welcome-badge').textContent = record.role;
+    document.getElementById('welcome-box').style.display = 'block';
+    document.getElementById('login-user').value = '';
+    document.getElementById('login-pass').value = '';
+  }catch(err){
+    msgEl.textContent = 'Erro ao entrar. Tente novamente.';
+    msgEl.classList.add('err');
+    console.error(err);
+  }
+}
+
+function handleLogout(){
+  currentUser = null;
+  document.getElementById('welcome-box').style.display = 'none';
+}
+
+async function loadMembers(){
+  const wrap = document.getElementById('members-table-wrap');
+  try{
+    const { data: records, error } = await db
+      .from('membros')
+      .select('name, user_name, role')
+      .order('name', { ascending: true });
+
+    if(error){
+      wrap.innerHTML = '<div class="empty-state">Não foi possível carregar os membros agora.</div>';
+      console.error(error);
+      return;
+    }
+
+    if(!records || records.length === 0){
+      wrap.innerHTML = '<div class="empty-state">Nenhum membro cadastrado ainda. Use o formulário de cadastro acima.</div>';
+      return;
+    }
+
+    let html = '<table><thead><tr><th>Nome</th><th>Usuário</th><th>Papel</th></tr></thead><tbody>';
+    for(const m of records){
+      html += `<tr><td>${escapeHtml(m.name)}</td><td>${escapeHtml(m.user_name)}</td><td>${escapeHtml(m.role)}</td></tr>`;
+    }
+    html += '</tbody></table>';
+    wrap.innerHTML = html;
+  }catch(err){
+    wrap.innerHTML = '<div class="empty-state">Não foi possível carregar os membros agora.</div>';
+    console.error(err);
+  }
+}
+
+function escapeHtml(str){
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+loadMembers();
+</script>
+</body>
+</html>
