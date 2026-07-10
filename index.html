@@ -661,6 +661,43 @@ table.members-table tr:last-child td{ border-bottom: none; }
 }
 .social-btn:hover{ color: var(--green); border-color: var(--green); box-shadow: 0 0 12px rgba(57,255,136,.35); transform: translateY(-2px); }
 
+/* ---------- Tab navigation ---------- */
+.tab-nav{
+  position: sticky;
+  top: 66px;
+  z-index: 90;
+  display: flex;
+  flex-wrap: wrap;
+  gap: .6rem;
+  justify-content: center;
+  padding: 1.1rem 1.5rem;
+  background: rgba(5,8,12,.85);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border);
+}
+body.theme-light .tab-nav{ background: rgba(238,243,247,.92); }
+.tab-btn{
+  font-family: var(--font-sub);
+  font-weight: 700;
+  font-size: .88rem;
+  letter-spacing: .04em;
+  color: var(--muted);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: .55rem 1.3rem;
+  transition: all var(--transition);
+}
+.tab-btn:hover{ color: var(--white); border-color: var(--green); }
+.tab-btn.active{
+  color: #05080c;
+  background: var(--green);
+  border-color: var(--green);
+  box-shadow: 0 0 14px rgba(57,255,136,.4);
+}
+.tab-panel{ display: none; }
+.tab-panel.active{ display: block; }
+
 /* ---------- Responsive ---------- */
 @media (max-width: 860px){
   .main-nav{
@@ -761,8 +798,18 @@ table.members-table tr:last-child td{ border-bottom: none; }
   <div class="scroll-hint">▾ role para explorar</div>
 </section>
 
+<!-- ===================== BARRA DE ABAS ===================== -->
+<nav class="tab-nav" id="tab-nav" aria-label="Seções do site">
+  <button class="tab-btn" data-tab="regras" type="button">Regras</button>
+  <button class="tab-btn" data-tab="projetos" type="button">Projetos</button>
+  <button class="tab-btn" data-tab="equipes" type="button">Equipes</button>
+  <button class="tab-btn" data-tab="login" type="button">Login</button>
+  <button class="tab-btn" data-tab="cadastro" type="button">Cadastro</button>
+  <button class="tab-btn" data-tab="membros" type="button">Membros</button>
+</nav>
+
 <!-- ===================== REGRAS ===================== -->
-<section class="section" id="regras" data-reveal>
+<section class="section tab-panel" id="regras" data-reveal>
   <div class="section-head">
     <p class="eyebrow">PROTOCOLO INTERNO</p>
     <h2 class="section-title">Regras</h2>
@@ -840,7 +887,7 @@ table.members-table tr:last-child td{ border-bottom: none; }
 </section>
 
 <!-- ===================== PROJETOS ===================== -->
-<section class="section section-alt" id="projetos" data-reveal>
+<section class="section section-alt tab-panel" id="projetos" data-reveal>
   <div class="section-head">
     <p class="eyebrow">REGISTRO DE DESENVOLVIMENTO</p>
     <h2 class="section-title">Projetos</h2>
@@ -865,7 +912,7 @@ table.members-table tr:last-child td{ border-bottom: none; }
 </section>
 
 <!-- ===================== EQUIPES ===================== -->
-<section class="section" id="equipes" data-reveal>
+<section class="section tab-panel" id="equipes" data-reveal>
   <div class="section-head">
     <p class="eyebrow">TIMES DO CLUBE</p>
     <h2 class="section-title">Equipes</h2>
@@ -876,7 +923,7 @@ table.members-table tr:last-child td{ border-bottom: none; }
 </section>
 
 <!-- ===================== LOGIN ===================== -->
-<section class="section section-alt" id="login" data-reveal>
+<section class="section section-alt tab-panel" id="login" data-reveal>
   <div class="section-head">
     <p class="eyebrow">ACESSO AO SISTEMA</p>
     <h2 class="section-title">Login</h2>
@@ -907,7 +954,7 @@ table.members-table tr:last-child td{ border-bottom: none; }
 </section>
 
 <!-- ===================== CADASTRO ===================== -->
-<section class="section" id="cadastro" data-reveal>
+<section class="section tab-panel" id="cadastro" data-reveal>
   <div class="section-head">
     <p class="eyebrow">NOVO INTEGRANTE</p>
     <h2 class="section-title">Cadastro de membro</h2>
@@ -943,11 +990,11 @@ table.members-table tr:last-child td{ border-bottom: none; }
 </section>
 
 <!-- ===================== MEMBROS ===================== -->
-<section class="section section-alt" id="membros" data-reveal>
+<section class="section section-alt tab-panel" id="membros" data-reveal>
   <div class="section-head">
     <p class="eyebrow">BANCO DE DADOS</p>
     <h2 class="section-title">Membros cadastrados</h2>
-    <p class="section-sub">Lista de todos os membros já registrados no sistema.</p>
+    <p class="section-sub">Lista de todos os membros já registrados no sistema. Faça login para ver o nome completo.</p>
   </div>
 
   <div class="members-table-wrap" id="members-table-wrap">
@@ -1109,6 +1156,7 @@ async function handleLogin(){
     document.getElementById('welcome-box').style.display = 'block';
     document.getElementById('login-user').value = '';
     document.getElementById('login-pass').value = '';
+    loadMembers();
   }catch(err){
     msgEl.textContent = 'Erro ao entrar. Tente novamente.';
     msgEl.classList.add('err');
@@ -1119,10 +1167,13 @@ async function handleLogin(){
 function handleLogout(){
   currentUser = null;
   document.getElementById('welcome-box').style.display = 'none';
+  loadMembers();
 }
 
 async function loadMembers(){
   const wrap = document.getElementById('members-table-wrap');
+  const loggedIn = !!currentUser;
+
   try{
     const { data: records, error } = await db
       .from('membros')
@@ -1140,11 +1191,23 @@ async function loadMembers(){
       return;
     }
 
-    let html = '<table class="members-table"><thead><tr><th>Nome</th><th>Usuário</th><th>Papel</th></tr></thead><tbody>';
-    for(const m of records){
-      html += `<tr><td>${escapeHtml(m.name)}</td><td>${escapeHtml(m.user_name)}</td><td>${escapeHtml(m.role)}</td></tr>`;
+    let html;
+    if(loggedIn){
+      // Usuário logado: vê a lista completa, com nome.
+      html = '<table class="members-table"><thead><tr><th>Nome</th><th>Usuário</th><th>Papel</th></tr></thead><tbody>';
+      for(const m of records){
+        html += `<tr><td>${escapeHtml(m.name)}</td><td>${escapeHtml(m.user_name)}</td><td>${escapeHtml(m.role)}</td></tr>`;
+      }
+      html += '</tbody></table>';
+    } else {
+      // Visitante não logado: vê só o usuário e o papel, sem o nome.
+      html = '<p class="note-text" style="margin-bottom:1rem">Faça login para ver o nome completo dos membros.</p>';
+      html += '<table class="members-table"><thead><tr><th>Usuário</th><th>Papel</th></tr></thead><tbody>';
+      for(const m of records){
+        html += `<tr><td>${escapeHtml(m.user_name)}</td><td>${escapeHtml(m.role)}</td></tr>`;
+      }
+      html += '</tbody></table>';
     }
-    html += '</tbody></table>';
     wrap.innerHTML = html;
   }catch(err){
     wrap.innerHTML = '<p class="empty-state">Não foi possível carregar os membros agora.</p>';
@@ -1317,7 +1380,7 @@ document.querySelectorAll('.acc-trigger').forEach(trigger => {
 });
 
 /* ---------------------------------------------------------
-   6. NAVEGAÇÃO MOBILE + SCROLLSPY
+   6. NAVEGAÇÃO MOBILE + SISTEMA DE ABAS
    --------------------------------------------------------- */
 const navToggle = document.getElementById('nav-toggle');
 const mainNav = document.getElementById('main-nav');
@@ -1326,25 +1389,61 @@ navToggle.addEventListener('click', () => {
   navToggle.classList.toggle('open', isOpen);
   navToggle.setAttribute('aria-expanded', String(isOpen));
 });
-document.querySelectorAll('.nav-link').forEach(link => {
-  link.addEventListener('click', () => {
+
+const TAB_IDS = ['regras', 'projetos', 'equipes', 'login', 'cadastro', 'membros'];
+const tabButtons = document.querySelectorAll('.tab-btn');
+const tabPanels = document.querySelectorAll('.tab-panel');
+const navLinks = document.querySelectorAll('.nav-link');
+const tabNavEl = document.getElementById('tab-nav');
+
+function activateTab(id, opts){
+  opts = opts || {};
+  if (TAB_IDS.indexOf(id) === -1) return;
+
+  tabButtons.forEach(b => b.classList.toggle('active', b.dataset.tab === id));
+  navLinks.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + id));
+
+  tabPanels.forEach(p => {
+    const isActive = p.id === id;
+    p.classList.toggle('active', isActive);
+    if (isActive){
+      p.querySelectorAll('[data-reveal]').forEach(el => el.classList.add('is-visible'));
+    }
+  });
+
+  if (opts.updateHash !== false) history.replaceState(null, '', '#' + id);
+  try{ localStorage.setItem('divisao00-tab', id); }catch(e){}
+
+  if (opts.scroll){
+    tabNavEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
+
+tabButtons.forEach(btn => {
+  btn.addEventListener('click', () => activateTab(btn.dataset.tab, { scroll: true }));
+});
+
+navLinks.forEach(link => {
+  link.addEventListener('click', (e) => {
+    const targetId = link.getAttribute('href').slice(1);
     mainNav.classList.remove('open');
     navToggle.classList.remove('open');
+    if (TAB_IDS.indexOf(targetId) !== -1){
+      e.preventDefault();
+      activateTab(targetId, { scroll: true });
+    }
+    // link "Início" (#topo) rola normalmente para o topo, fora do sistema de abas
   });
 });
 
-const sections = ['topo', 'regras', 'projetos', 'equipes', 'login', 'cadastro', 'membros'].map(id => document.getElementById(id));
-const navLinks = document.querySelectorAll('.nav-link');
-const spyObserver = new IntersectionObserver((entries) => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting){
-      navLinks.forEach(l => l.classList.remove('active'));
-      const active = document.querySelector(`.nav-link[href="#${entry.target.id}"]`);
-      if (active) active.classList.add('active');
-    }
-  });
-}, { rootMargin: '-40% 0px -55% 0px' });
-sections.forEach(s => s && spyObserver.observe(s));
+/* Aba inicial: usa o hash da URL, senão a última aba salva, senão "regras" */
+(function initTab(){
+  const hashId = window.location.hash.replace('#', '');
+  let saved = null;
+  try{ saved = localStorage.getItem('divisao00-tab'); }catch(e){}
+  const initial = TAB_IDS.indexOf(hashId) !== -1 ? hashId : (TAB_IDS.indexOf(saved) !== -1 ? saved : 'regras');
+  activateTab(initial, { updateHash: false });
+})();
 
 /* ---------------------------------------------------------
    7. TEMA CLARO / ESCURO
